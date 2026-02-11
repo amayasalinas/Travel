@@ -27,7 +27,7 @@ export default function Home() {
       }}>
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'url(https://lh3.googleusercontent.com/aida-public/AB6AXuCWTuaBag0UXdzYleunowhewBTIQy13BElo9jkePQXOxeH0blK_kcu37Z7zsd6Md_KVLLjonwHzkZFCmJ1fiIsEW_ufNGzCdZncvlHRk1u09FNDnoJ0TGK3b-DunQL4HBTZwlAlfu_gWZq46T7R-_ZlofbkdE3wa9z5h8BzdnfQ4BeT6JW380G1Y369coM-oqWkwYp82BzoXGbrL6_oWdOlgaGeYC6h1fcRalY-ayVtBQ0j8-rTCGp4HxJKeyeO8MxmScIMEeFiu82U)',
+          backgroundImage: 'url(https://images.unsplash.com/photo-1599593252727-4e0d788362a0?q=80&w=2574&auto=format&fit=crop)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }} />

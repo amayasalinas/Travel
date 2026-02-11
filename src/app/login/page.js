@@ -1,9 +1,12 @@
 'use client';
-import { useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import Footer from '@/components/Footer';
 
 export default function LoginPage() {
+    const searchParams = useSearchParams();
+    const next = searchParams.get('next');
     const [email, setEmail] = useState('');
     const [codeSent, setCodeSent] = useState(false);
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -44,7 +47,9 @@ export default function LoginPage() {
             });
             const data = await res.json();
             if (data.success) {
-                if (data.isAdmin) {
+                if (next) {
+                    window.location.href = next;
+                } else if (data.isAdmin) {
                     window.location.href = '/admin';
                 } else {
                     window.location.href = '/';

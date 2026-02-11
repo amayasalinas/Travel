@@ -1,27 +1,27 @@
 export function generateItineraryEmail({ nombre, fechaInicio, fechaFin, activitiesByDay }) {
-    const formatTime = (time) => time ? time.substring(0, 5) : '';
-    const formatPrice = (price) => {
-        if (!price || price === 0) return 'Gratis';
-        return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(price);
-    };
-    const formatDate = (dateStr) => {
-        const d = new Date(dateStr + 'T12:00:00');
-        return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
-    };
+  const formatTime = (time) => time ? time.substring(0, 5) : '';
+  const formatPrice = (price) => {
+    if (!price || price === 0) return 'Gratis';
+    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(price);
+  };
+  const formatDate = (dateStr) => {
+    const d = new Date(dateStr + 'T12:00:00');
+    return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
 
-    let daysHtml = '';
-    for (const [date, activities] of Object.entries(activitiesByDay)) {
-        let activitiesHtml = '';
-        for (const act of activities) {
-            const timeRange = act.horaInicio && act.horaFin ? `${formatTime(act.horaInicio)} - ${formatTime(act.horaFin)}` : '';
-            const priceLabel = formatPrice(act.precio);
-            const reserveBtn = act.reserva ? `
-        <a href="${act.reserva}" style="display:inline-block;background:#f27f0d;color:#fff;padding:10px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:10px;font-size:14px;">
-          📅 Reservar
+  let daysHtml = '';
+  for (const [date, activities] of Object.entries(activitiesByDay)) {
+    let activitiesHtml = '';
+    for (const act of activities) {
+      const timeRange = act.horaInicio && act.horaFin ? `${formatTime(act.horaInicio)} - ${formatTime(act.horaFin)}` : '';
+      const priceLabel = formatPrice(act.precio);
+      const reserveBtn = act.reserva ? `
+        <a href="https://travel-five-iota.vercel.app/mis-viajes" style="display:inline-block;background:#f27f0d;color:#fff;padding:10px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:10px;font-size:14px;">
+          📅 Ver detalles y reservar
         </a>` : '';
-            const linkBtn = act.link ? `<a href="${act.link}" style="color:#f27f0d;font-weight:600;text-decoration:none;font-size:13px;">Ver más información →</a>` : '';
+      const linkBtn = act.link ? `<a href="${act.link}" style="color:#f27f0d;font-weight:600;text-decoration:none;font-size:13px;">Ver más información →</a>` : '';
 
-            activitiesHtml += `
+      activitiesHtml += `
         <div style="background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;border-left:4px solid ${act.reserva ? '#f27f0d' : '#e2e8f0'};">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <span style="color:#f27f0d;font-weight:700;font-size:14px;">🕐 ${timeRange}</span>
@@ -32,18 +32,18 @@ export function generateItineraryEmail({ nombre, fechaInicio, fechaFin, activiti
           ${reserveBtn}
           ${linkBtn ? `<div style="margin-top:8px;">${linkBtn}</div>` : ''}
         </div>`;
-        }
+    }
 
-        daysHtml += `
+    daysHtml += `
       <div style="margin-bottom:32px;">
         <h2 style="color:#f27f0d;font-size:18px;font-weight:700;border-bottom:2px solid #f27f0d;padding-bottom:8px;margin-bottom:16px;">
           📅 ${formatDate(date)}
         </h2>
         ${activitiesHtml}
       </div>`;
-    }
+  }
 
-    return `
+  return `
     <!DOCTYPE html>
     <html lang="es">
     <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
