@@ -9,7 +9,7 @@ function LoginForm() {
     const next = searchParams.get('next');
     const [email, setEmail] = useState('');
     const [codeSent, setCodeSent] = useState(false);
-    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [otp, setOtp] = useState(['', '', '', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -37,7 +37,7 @@ function LoginForm() {
 
     const verifyOtp = async () => {
         const code = otp.join('');
-        if (code.length < 6) return;
+        if (code.length < 8) return;
         setLoading(true);
         try {
             const res = await fetch('/api/auth', {
@@ -68,7 +68,7 @@ function LoginForm() {
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
-        if (value && index < 5) {
+        if (value && index < 7) {
             document.getElementById(`otp-${index + 1}`)?.focus();
         }
     };
@@ -135,7 +135,7 @@ function LoginForm() {
                             ))}
                         </div>
                         <button className="btn btn-primary btn-block" onClick={verifyOtp}
-                            disabled={otp.join('').length < 6 || loading}>
+                            disabled={otp.join('').length < 8 || loading}>
                             {loading ? 'Verificando...' : 'Verificar código'}
                         </button>
                         <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 16 }}>

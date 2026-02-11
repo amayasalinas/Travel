@@ -95,7 +95,7 @@ export async function POST(request) {
             const { data, error } = await supabase.auth.verifyOtp({
                 email,
                 token,
-                type: 'email',
+                type: 'magiclink',
             });
             if (error) {
                 return NextResponse.json({ success: false, error: 'Código inválido o expirado.' });
