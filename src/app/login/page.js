@@ -156,6 +156,11 @@ function LoginForm() {
                 )}
             </div>
 
+            <p style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 20, textAlign: 'center' }}>
+                ¿No tienes cuenta?{' '}
+                <Link href="/registro" style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none' }}>Regístrate aquí</Link>
+            </p>
+
             <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 24, textAlign: 'center', padding: '0 24px' }}>
                 Al continuar, aceptas nuestra{' '}
                 <Link href="/politica-datos" style={{ color: 'var(--text-dark)', fontWeight: 600, textDecoration: 'none' }}>Política de Privacidad</Link>
