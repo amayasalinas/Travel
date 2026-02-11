@@ -65,6 +65,15 @@ export function generateItineraryEmail({ nombre, fechaInicio, fechaFin, activiti
           </div>
 
           ${daysHtml}
+
+          <!-- CTA global -->
+          <div style="text-align:center;margin:32px 0 16px 0;padding:28px;background:linear-gradient(135deg,#fff7ed 0%,#fef3c7 100%);border-radius:16px;border:1px solid #f27f0d33;">
+            <p style="font-size:16px;font-weight:700;color:#1B2D45;margin:0 0 8px 0;">¿Listo para reservar?</p>
+            <p style="font-size:13px;color:#64748b;margin:0 0 18px 0;">Accede a tu itinerario completo en Assitour con links directos de reserva.</p>
+            <a href="https://travel-five-iota.vercel.app/mis-viajes" style="display:inline-block;background:#f27f0d;color:#fff;padding:14px 36px;border-radius:12px;text-decoration:none;font-weight:700;font-size:16px;letter-spacing:0.3px;">
+              📅 Ver mi itinerario y reservar
+            </a>
+          </div>
         </div>
 
         <!-- Footer -->
