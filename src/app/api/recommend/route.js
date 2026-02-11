@@ -2,9 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
 import { generateRecommendations } from '@/lib/recommender';
 import { generateItineraryEmail } from '@/lib/emailTemplate';
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import nodemailer from 'nodemailer';
 
 export async function POST(request) {
     try {
@@ -62,20 +60,28 @@ export async function POST(request) {
             activitiesByDay: itinerary
         });
 
-        // 5. Send email via Resend
+        // 5. Send email via Nodemailer (Gmail)
         try {
-            const { data: emailData, error: emailError } = await resend.emails.send({
-                from: 'Assitour <onboarding@resend.dev>',
-                to: email,
-                subject: `✈️ Tu itinerario para Medellín – ${new Date(fechaInicio).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })} al ${new Date(fechaFin).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}`,
-                html: emailHtml
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.GMAIL_USER,
+                    pass: process.env.GMAIL_APP_PASSWORD,
+                },
             });
 
-            if (emailError) {
-                console.error('Error sending email:', emailError);
-            }
+            const info = await transporter.sendMail({
+                from: `"Assitour" <${process.env.GMAIL_USER}>`,
+                to: email,
+                subject: `✈️ Tu itinerario para Medellín – ${new Date(fechaInicio).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })} al ${new Date(fechaFin).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}`,
+                html: emailHtml,
+            });
+
+            console.log('Email sent:', info.messageId);
+
         } catch (emailErr) {
             console.error('Email send error:', emailErr);
+            // Don't fail the request if email fails, but log it
         }
 
         return NextResponse.json({ success: true });
