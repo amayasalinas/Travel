@@ -132,13 +132,25 @@ function LoginForm() {
                                 background: '#fff', padding: '0 16px', fontSize: 13, color: 'var(--text-muted)'
                             }}>Ingresa el código</span>
                         </div>
-                        <div className="otp-container" style={{ marginBottom: 20 }}>
+                        <div className="otp-container" style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(8, 1fr)',
+                            gap: '4px',
+                            marginBottom: 20
+                        }}>
                             {otp.map((digit, i) => (
                                 <input key={i} id={`otp-${i}`} type="text" maxLength={1}
                                     className="otp-input" value={digit}
                                     onChange={e => handleOtpChange(i, e.target.value)}
                                     onKeyDown={e => handleOtpKeyDown(i, e)}
-                                    inputMode="numeric" />
+                                    inputMode="numeric"
+                                    style={{
+                                        width: '100%',
+                                        height: '40px',
+                                        fontSize: '18px',
+                                        padding: 0,
+                                        textAlign: 'center'
+                                    }} />
                             ))}
                         </div>
                         <button className="btn btn-primary btn-block" onClick={verifyOtp}

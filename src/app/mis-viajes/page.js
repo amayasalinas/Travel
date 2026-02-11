@@ -70,79 +70,121 @@ export default function MyTrips() {
                         </button>
                     </div>
                 ) : (
-                    <div className="grid gap-8">
-                        {trips.map((trip) => (
-                            <div key={trip.id} className="bg-white rounded-2xl shadow-[var(--shadow-md)] overflow-hidden">
-                                <div className="bg-[var(--secondary)] text-white p-6 flex justify-between items-center">
-                                    <div>
-                                        <h2 className="text-xl font-bold">{trip.destination}</h2>
-                                        <p className="text-sm opacity-80">{trip.dates.dates || trip.dates}</p>
-                                    </div>
-                                    <span className="bg-[rgba(255,255,255,0.1)] px-3 py-1 rounded-full text-xs font-medium border border-[rgba(255,255,255,0.2)]">
-                                        Generado automáticamente
-                                    </span>
-                                </div>
-
-                                <div className="p-6">
-                                    {Object.entries(trip.plan).map(([date, activities]) => (
-                                        <div key={date} className="mb-8 last:mb-0">
-                                            <h3 className="text-[var(--primary)] font-bold text-lg border-b-2 border-[var(--primary)] pb-2 mb-4">
-                                                📅 {new Date(date + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
-                                            </h3>
-
-                                            <div className="space-y-4">
-                                                {activities.map((act, idx) => (
-                                                    <div key={idx} className="flex gap-4 p-4 rounded-xl bg-gray-50 hover:bg-white hover:shadow-md transition-all border border-gray-100">
-                                                        <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
-                                                            {act.reserva ? (
-                                                                <div className="w-full h-full bg-[var(--primary)] flex items-center justify-center text-white font-bold text-xs text-center p-1">
-                                                                    Reservable
-                                                                </div>
-                                                            ) : (
-                                                                <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500">
-                                                                    <span className="material-icons-round">local_activity</span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="flex-grow">
-                                                            <div className="flex justify-between items-start">
-                                                                <h4 className="font-bold text-[var(--secondary)] text-lg">{act.actividad}</h4>
-                                                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${!act.precio ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-                                                                    {!act.precio ? 'Gratis' : `$${act.precio.toLocaleString()}`}
-                                                                </span>
-                                                            </div>
-
-                                                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{act.descripcion}</p>
-
-                                                            <div className="mt-3 flex gap-3">
-                                                                {act.reserva && (
-                                                                    <a href={act.reserva} target="_blank" rel="noopener noreferrer"
-                                                                        className="text-white bg-[var(--primary)] hover:bg-[var(--primary-dark)] px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1 transition-colors">
-                                                                        <span className="material-icons-round text-sm">calendar_month</span> Reservar
-                                                                    </a>
-                                                                )}
-                                                                {act.link && (
-                                                                    <a href={act.link} target="_blank" rel="noopener noreferrer"
-                                                                        className="text-[var(--primary)] hover:bg-orange-50 px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-1 transition-colors">
-                                                                        Ver info <span className="material-icons-round text-sm">open_in_new</span>
-                                                                    </a>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <SingleTripView trips={trips} />
                 )}
             </main>
 
             <Footer />
+        </div>
+    );
+}
+
+function SingleTripView({ trips }) {
+    const [selectedTripId, setSelectedTripId] = useState(trips[0].id);
+    const selectedTrip = trips.find(t => t.id === selectedTripId) || trips[0];
+
+    return (
+        <div className="animate-fade-in">
+            {/* Trip Selector (only if > 1) */}
+            {trips.length > 1 && (
+                <div className="flex gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide">
+                    {trips.map(trip => (
+                        <button
+                            key={trip.id}
+                            onClick={() => setSelectedTripId(trip.id)}
+                            className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-bold transition-all ${selectedTripId === trip.id
+                                ? 'bg-[var(--primary)] text-white shadow-lg scale-105'
+                                : 'bg-white text-gray-600 hover:bg-gray-50'
+                                }`}
+                        >
+                            {trip.dates}
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {/* Trip Details */}
+            <div className="bg-white rounded-3xl shadow-[var(--shadow-lg)] overflow-hidden border border-gray-100">
+                {/* Header Image/Gradient */}
+                <div className="bg-gradient-to-r from-[var(--secondary)] to-[#2d4a6f] text-white p-8 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-10">
+                        <span className="material-icons-round text-9xl transform rotate-12">flight</span>
+                    </div>
+                    <div className="relative z-10">
+                        <h2 className="text-3xl font-extrabold mb-2">{selectedTrip.destination}</h2>
+                        <div className="flex items-center gap-2 opacity-90 text-sm font-medium">
+                            <span className="material-icons-round text-base">calendar_today</span>
+                            {selectedTrip.dates}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6 md:p-8">
+                    {Object.entries(selectedTrip.plan).map(([date, activities]) => (
+                        <div key={date} className="mb-10 last:mb-0 relative pl-6 border-l-2 border-dashed border-gray-200">
+                            <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-[var(--primary)] ring-4 ring-orange-50"></div>
+                            <h3 className="text-[var(--secondary)] font-bold text-xl mb-6 flex items-center gap-2">
+                                {new Date(date + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+                            </h3>
+
+                            <div className="space-y-6">
+                                {activities.map((act, idx) => (
+                                    <div key={idx} className="group flex flex-col md:flex-row gap-5 p-5 rounded-2xl bg-[#f8f9fa] hover:bg-white hover:shadow-[var(--shadow-md)] transition-all border border-transparent hover:border-gray-100">
+                                        {/* Time & Price Badge */}
+                                        <div className="md:w-48 flex-shrink-0 flex flex-row md:flex-col justify-between md:justify-start gap-2">
+                                            <div className="text-sm font-bold text-[var(--secondary)] flex items-center gap-1">
+                                                <span className="material-icons-round text-lg text-[var(--primary)]">schedule</span>
+                                                {act.horaInicio ? `${act.horaInicio.substring(0, 5)}` : 'Flexible'}
+                                            </div>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold w-fit ${!act.precio ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
+                                                {!act.precio ? 'Gratis' : `$${act.precio.toLocaleString()}`}
+                                            </span>
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="flex-grow">
+                                            <h4 className="font-bold text-[var(--secondary)] text-lg mb-2">{act.actividad}</h4>
+                                            <p className="text-sm text-gray-500 leading-relaxed mb-4">{act.descripcion}</p>
+
+                                            {/* Actions */}
+                                            <div className="flex flex-wrap gap-3 mt-auto">
+                                                {act.reserva ? (
+                                                    <a href={act.reserva} target="_blank" rel="noopener noreferrer"
+                                                        className="flex-1 md:flex-none text-center bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2">
+                                                        <span>Reservar ahora</span>
+                                                        <span className="material-icons-round text-sm">arrow_forward</span>
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-xs text-gray-400 flex items-center gap-1 bg-gray-100 px-3 py-2 rounded-lg pointer-events-none">
+                                                        <span className="material-icons-round text-sm">info</span>
+                                                        Presencial / Sin reserva online
+                                                    </span>
+                                                )}
+
+                                                {act.link && (
+                                                    <a href={act.link} target="_blank" rel="noopener noreferrer"
+                                                        className="flex-1 md:flex-none text-center text-[var(--secondary)] bg-white border border-gray-200 hover:bg-gray-50 px-5 py-2.5 rounded-xl text-sm font-bold transition-all">
+                                                        Más info
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Footer CTA */}
+                    <div className="mt-12 p-6 bg-blue-50 rounded-2xl border border-blue-100 text-center">
+                        <p className="text-blue-900 font-medium mb-3">¿Necesitas ayuda con tus reservas?</p>
+                        <button className="text-blue-700 font-bold hover:underline flex items-center justify-center gap-2">
+                            <span className="material-icons-round">support_agent</span>
+                            Contactar soporte de Assitour
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
