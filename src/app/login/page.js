@@ -1,15 +1,17 @@
 'use client';
 import { startTransition, useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import Footer from '@/components/Footer';
 
 function LoginForm() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const next = searchParams.get('next');
     const [email, setEmail] = useState('');
     const [codeSent, setCodeSent] = useState(false);
-    const [otp, setOtp] = useState(['', '', '', '', '', '', '', '']);
+    const [otp, setOtp] = useState(['', '', '', '', '', '', '', '']); // 8 digits required by Supabase
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -47,12 +49,17 @@ function LoginForm() {
             });
             const data = await res.json();
             if (data.success) {
+                // IMPORTANT: Set session on client side before redirecting
+                if (data.session) {
+                    await supabase.auth.setSession(data.session);
+                }
+
                 if (next) {
-                    window.location.href = next;
+                    router.push(next);
                 } else if (data.isAdmin) {
-                    window.location.href = '/admin';
+                    router.push('/admin');
                 } else {
-                    window.location.href = '/';
+                    router.push('/');
                 }
             } else {
                 setMessage('Código inválido o expirado. Intenta de nuevo.');
