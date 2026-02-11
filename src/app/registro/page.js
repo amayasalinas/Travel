@@ -37,12 +37,12 @@ export default function RegistroPage() {
                         width: 64, height: 64, borderRadius: '50%', background: '#dcfce7',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px'
                     }}>
-                        <span className="material-icons-round" style={{ color: 'var(--success)', fontSize: 32 }}>mark_email_read</span>
+                        <span className="material-icons-round" style={{ color: 'var(--success)', fontSize: 32 }}>check_circle</span>
                     </div>
-                    <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 12 }}>¡Revisa tu correo!</h2>
+                    <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 12 }}>¡Cuenta creada!</h2>
                     <p style={{ fontSize: 15, color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                        Hemos enviado un enlace de verificación a <strong>{email}</strong>.
-                        Haz clic en el enlace para activar tu cuenta.
+                        Tu cuenta con <strong>{email}</strong> ha sido creada exitosamente.
+                        Ya puedes iniciar sesión.
                     </p>
                     <Link href="/login" style={{ textDecoration: 'none' }}>
                         <button className="btn btn-primary btn-block" style={{ marginTop: 24 }}>

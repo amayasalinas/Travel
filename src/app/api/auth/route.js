@@ -10,23 +10,17 @@ export async function POST(request) {
 
     switch (action) {
         case 'register': {
-            // Sign up with Supabase Auth
+            // Sign up with Supabase Auth (auto-confirm, OTP at login verifies email)
             const { data, error } = await supabase.auth.admin.createUser({
                 email,
-                email_confirm: false,
+                email_confirm: true,
             });
             if (error) {
-                // If already exists, let them know
                 if (error.message?.includes('already')) {
                     return NextResponse.json({ success: false, error: 'Este correo ya está registrado. Intenta iniciar sesión.' });
                 }
                 return NextResponse.json({ success: false, error: error.message });
             }
-            // Send confirmation email via magic link
-            const { error: linkError } = await supabase.auth.admin.generateLink({
-                type: 'signup',
-                email,
-            });
             return NextResponse.json({ success: true });
         }
 
