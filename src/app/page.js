@@ -27,7 +27,7 @@ export default function Home() {
       }}>
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'url(https://images.unsplash.com/photo-1599593252727-4e0d788362a0?q=80&w=2574&auto=format&fit=crop)',
+          backgroundImage: 'url(/images/hero.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }} />
