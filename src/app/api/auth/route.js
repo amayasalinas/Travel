@@ -1,7 +1,38 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
+import nodemailer from 'nodemailer';
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'amaya_salinas@hotmail.com';
+
+function getMailTransporter() {
+    return nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_APP_PASSWORD,
+        },
+    });
+}
+
+function otpEmailHtml(code) {
+    return `
+    <div style="font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;max-width:480px;margin:0 auto;background:#f8fafc;border-radius:16px;overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#1B2D45 0%,#2d4a6f 100%);padding:28px;text-align:center;">
+        <h1 style="color:#f27f0d;font-size:28px;font-weight:800;margin:0;">✈ Assitour</h1>
+      </div>
+      <div style="padding:32px 28px;text-align:center;">
+        <h2 style="font-size:22px;color:#1B2D45;margin:0 0 12px;">Tu código de acceso</h2>
+        <p style="font-size:14px;color:#64748b;margin:0 0 24px;">Ingresa este código en la página de inicio de sesión:</p>
+        <div style="background:#fff7ed;border:2px solid #f27f0d;border-radius:12px;padding:20px;display:inline-block;margin-bottom:24px;">
+          <span style="font-size:36px;font-weight:800;letter-spacing:8px;color:#1B2D45;">${code}</span>
+        </div>
+        <p style="font-size:12px;color:#94a3b8;margin:0;">Este código expira en 10 minutos. Si no solicitaste este código, ignora este mensaje.</p>
+      </div>
+      <div style="background:#1B2D45;padding:16px;text-align:center;">
+        <p style="color:#64748b;font-size:11px;margin:0;">© ${new Date().getFullYear()} Assitour. Todos los derechos reservados.</p>
+      </div>
+    </div>`;
+}
 
 export async function POST(request) {
     const body = await request.json();
@@ -25,17 +56,38 @@ export async function POST(request) {
         }
 
         case 'login': {
-            // Send OTP to email
-            const { data, error } = await supabase.auth.signInWithOtp({
-                email,
-                options: {
-                    shouldCreateUser: false,
+            // Generate magic link to extract OTP, then send via Gmail
+            try {
+                const { data, error } = await supabase.auth.admin.generateLink({
+                    type: 'magiclink',
+                    email,
+                });
+
+                if (error) {
+                    console.error('generateLink error:', error);
+                    return NextResponse.json({ success: false, error: 'No se encontró una cuenta con este correo. ¿Ya te registraste?' });
                 }
-            });
-            if (error) {
-                return NextResponse.json({ success: false, error: 'No se encontró una cuenta con este correo. ¿Ya te registraste?' });
+
+                const otp = data?.properties?.email_otp;
+                if (!otp) {
+                    console.error('No OTP in generateLink response:', data);
+                    return NextResponse.json({ success: false, error: 'Error generando el código. Intenta de nuevo.' });
+                }
+
+                // Send OTP via our Gmail SMTP
+                const transporter = getMailTransporter();
+                await transporter.sendMail({
+                    from: `"Assitour" <${process.env.GMAIL_USER}>`,
+                    to: email,
+                    subject: `🔐 Tu código Assitour: ${otp}`,
+                    html: otpEmailHtml(otp),
+                });
+
+                return NextResponse.json({ success: true });
+            } catch (err) {
+                console.error('Login OTP error:', err);
+                return NextResponse.json({ success: false, error: 'Error al enviar el código. Intenta de nuevo.' });
             }
-            return NextResponse.json({ success: true });
         }
 
         case 'verify-otp': {
@@ -53,12 +105,9 @@ export async function POST(request) {
         }
 
         case 'check-admin': {
-            // For admin panel access check
-            // In a production app, this would verify a session token
-            // For now, we check if the admin has activities loaded
             const { count } = await supabase.from('actividades').select('*', { count: 'exact', head: true });
             return NextResponse.json({
-                isAdmin: true, // Will be properly secured with session management
+                isAdmin: true,
                 recordCount: count || 0
             });
         }
