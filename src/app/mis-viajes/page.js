@@ -46,25 +46,86 @@ export default function MyTrips() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[var(--bg-light)] flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--primary)]"></div>
+            <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="spinner"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[var(--bg-light)] text-[var(--text-dark)] flex flex-col font-sans">
+        <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-light)', color: 'var(--text-dark)', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
             <Header variant="light" />
 
+            <style jsx global>{`
+                .timeline-card {
+                    border: 1px solid var(--border);
+                    position: relative;
+                }
+                .timeline-btn-primary {
+                    background-color: var(--primary);
+                    color: white;
+                    padding: 8px 20px;
+                    border-radius: 12px;
+                    font-weight: 700;
+                    font-size: 14px;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    box-shadow: 0 4px 10px rgba(242, 127, 13, 0.3);
+                    transition: all 0.2s;
+                    text-decoration: none;
+                }
+                .timeline-btn-primary:hover {
+                    background-color: var(--primary-dark);
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 14px rgba(242, 127, 13, 0.4);
+                }
+                .timeline-link {
+                     color: var(--primary);
+                     font-weight: 700;
+                     font-size: 14px;
+                     display: inline-flex;
+                     align-items: center;
+                     gap: 4px;
+                     padding: 8px 16px;
+                     border-radius: 12px;
+                     background-color: rgba(242, 127, 13, 0.08);
+                     text-decoration: none;
+                     transition: all 0.2s;
+                }
+                .timeline-link:hover {
+                    background-color: rgba(242, 127, 13, 0.15);
+                }
+                .dropdown-item {
+                    width: 100%;
+                    text-align: left;
+                    padding: 16px 20px;
+                    border: none;
+                    background: none;
+                    border-bottom: 1px solid var(--border);
+                    cursor: pointer;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    transition: background 0.2s;
+                }
+                .dropdown-item:hover {
+                    background-color: var(--bg-light);
+                }
+                .dropdown-item:last-child {
+                    border-bottom: none;
+                }
+            `}</style>
+
             {trips.length === 0 ? (
-                <main className="flex-grow container py-20 flex flex-col items-center justify-center text-center">
-                    <div className="bg-white p-12 rounded-3xl shadow-sm max-w-lg w-full">
-                        <span className="material-icons-round text-6xl text-gray-200 mb-6">flight_takeoff</span>
-                        <h2 className="text-2xl font-bold text-[var(--secondary)] mb-2">Aún no tienes viajes</h2>
-                        <p className="text-gray-500 mb-8">¡Es hora de planear tu próxima aventura en Medellín!</p>
+                <main className="container" style={{ flexGrow: 1, padding: '40px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                    <div className="card" style={{ maxWidth: '400px', width: '100%', padding: '40px' }}>
+                        <span className="material-icons-round" style={{ fontSize: '64px', color: '#e2e8f0', marginBottom: '20px' }}>flight_takeoff</span>
+                        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--secondary)', marginBottom: '8px' }}>Aún no tienes viajes</h2>
+                        <p style={{ color: 'var(--text-muted)', marginBottom: '32px' }}>¡Es hora de planear tu próxima aventura en Medellín!</p>
                         <button
                             onClick={() => router.push('/planifica')}
-                            className="btn btn-primary px-8 py-3 rounded-xl font-bold w-full shadow-lg shadow-orange-200"
+                            className="btn btn-primary btn-block"
                         >
                             Crear mi primer itinerario
                         </button>
@@ -78,10 +139,24 @@ export default function MyTrips() {
             {trips.length > 0 && (
                 <button
                     onClick={() => router.push('/planifica')}
-                    className="fixed bottom-6 right-6 w-14 h-14 bg-[var(--primary)] text-white rounded-full shadow-lg shadow-orange-400/40 hover:bg-[var(--primary-dark)] transition-all active:scale-90 z-30 flex items-center justify-center"
+                    className="btn-primary"
+                    style={{
+                        position: 'fixed',
+                        bottom: '24px',
+                        right: '24px',
+                        width: '56px',
+                        height: '56px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 30,
+                        padding: 0,
+                        boxShadow: '0 4px 12px rgba(242, 127, 13, 0.4)'
+                    }}
                     title="Planear nuevo viaje"
                 >
-                    <span className="material-icons-round text-2xl">add</span>
+                    <span className="material-icons-round" style={{ fontSize: '28px' }}>add</span>
                 </button>
             )}
         </div>
@@ -105,26 +180,51 @@ function TimelineView({ trips }) {
     };
 
     return (
-        <main className="flex-grow container max-w-2xl mx-auto px-4 py-8 pb-24">
+        <main className="container" style={{ padding: '32px 20px 100px 20px', maxWidth: '600px', margin: '0 auto' }}>
             {/* Header / Trip Selector */}
-            <div className="flex justify-between items-center mb-8 sticky top-20 z-20 bg-[var(--bg-light)]/95 backdrop-blur-sm py-2">
-                <div className="relative w-full mr-3">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', position: 'sticky', top: '80px', zIndex: 20 }}>
+                <div style={{ position: 'relative', width: '100%', marginRight: '12px' }}>
                     <button
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        className="flex items-center justify-between w-full bg-white px-5 py-3 rounded-full shadow-sm border border-gray-100 hover:border-gray-200 transition-all text-left"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            backgroundColor: '#fff',
+                            padding: '12px 20px',
+                            borderRadius: '999px',
+                            boxShadow: 'var(--shadow-sm)',
+                            border: '1px solid var(--border)',
+                            cursor: 'pointer',
+                            textAlign: 'left'
+                        }}
                     >
-                        <div className="flex items-center gap-3 truncate">
-                            <span className="material-icons-round text-[var(--primary)] text-xl">history</span>
-                            <span className="font-bold text-[var(--secondary)] truncate text-sm sm:text-base">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
+                            <span className="material-icons-round" style={{ color: 'var(--primary)', fontSize: '24px' }}>history</span>
+                            <span style={{ fontWeight: 'bold', color: 'var(--secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '15px' }}>
                                 {getTripLabel(selectedTrip)}
                             </span>
                         </div>
-                        <span className={`material-icons-round text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                        <span className="material-icons-round" style={{ color: '#94a3b8', transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>expand_more</span>
                     </button>
 
                     {/* Dropdown Menu */}
                     {isDropdownOpen && (
-                        <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-30 animate-fade-in-up">
+                        <div style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            width: '100%',
+                            marginTop: '8px',
+                            backgroundColor: '#fff',
+                            borderRadius: '16px',
+                            boxShadow: 'var(--shadow-lg)',
+                            border: '1px solid var(--border)',
+                            overflow: 'hidden',
+                            zIndex: 30,
+                            animation: 'fadeInUp 0.2s ease-out'
+                        }}>
                             {trips.map(trip => (
                                 <button
                                     key={trip.id}
@@ -132,17 +232,20 @@ function TimelineView({ trips }) {
                                         setSelectedTripId(trip.id);
                                         setIsDropdownOpen(false);
                                     }}
-                                    className={`w-full text-left px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${selectedTrip.id === trip.id ? 'bg-orange-50' : ''
-                                        }`}
+                                    className="dropdown-item"
+                                    style={{
+                                        backgroundColor: selectedTrip.id === trip.id ? 'var(--primary-light)' : 'transparent',
+                                        color: selectedTrip.id === trip.id ? 'var(--primary)' : 'var(--text-dark)',
+                                    }}
                                 >
                                     <div>
-                                        <p className={`font-bold text-sm ${selectedTrip.id === trip.id ? 'text-[var(--primary)]' : 'text-gray-700'}`}>
+                                        <p style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>
                                             {getTripLabel(trip)}
                                         </p>
-                                        <p className="text-xs text-gray-400 mt-1">{trip.dates}</p>
+                                        <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{trip.dates}</p>
                                     </div>
                                     {selectedTrip.id === trip.id && (
-                                        <span className="material-icons-round text-[var(--primary)]">check</span>
+                                        <span className="material-icons-round" style={{ color: 'var(--primary)' }}>check</span>
                                     )}
                                 </button>
                             ))}
@@ -150,92 +253,113 @@ function TimelineView({ trips }) {
                     )}
                 </div>
 
-                <button className="p-3 bg-white rounded-full shadow-sm border border-gray-100 text-gray-400 hover:text-[var(--primary)] transition-colors flex-shrink-0">
+                <button style={{
+                    padding: '12px',
+                    borderRadius: '50%',
+                    backgroundColor: '#fff',
+                    border: '1px solid var(--border)',
+                    boxShadow: 'var(--shadow-sm)',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                }}>
                     <span className="material-icons-round">filter_list</span>
                 </button>
             </div>
 
             {/* Info Box */}
-            <div className="mb-8 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-xl shadow-sm animate-fade-in">
-                <div className="flex items-start gap-3">
-                    <span className="material-icons-round text-blue-500 text-lg mt-0.5">info</span>
-                    <p className="text-sm text-blue-800 font-medium">
-                        Para algunas actividades es necesario reservar con anticipación.
-                    </p>
-                </div>
+            <div style={{ marginBottom: '32px', backgroundColor: '#eff6ff', borderLeft: '4px solid #3b82f6', padding: '16px', borderRadius: '0 12px 12px 0', display: 'flex', alignItems: 'start', gap: '12px' }}>
+                <span className="material-icons-round" style={{ color: '#3b82f6', fontSize: '20px', marginTop: '2px' }}>info</span>
+                <p style={{ fontSize: '14px', color: '#1e40af', fontWeight: 500, margin: 0 }}>
+                    Para algunas actividades es necesario reservar con anticipación.
+                </p>
             </div>
 
             {/* Timeline */}
             <div>
                 {Object.entries(selectedTrip.plan).map(([date, activities], dateIndex) => (
-                    <div key={date} className="mb-8 animate-fade-in" style={{ animationDelay: `${dateIndex * 100}ms` }}>
+                    <div key={date} style={{ marginBottom: '32px', animation: `fadeInUp 0.5s ease-out ${dateIndex * 0.1}s backwards` }}>
                         {/* Date Header */}
-                        <div className="flex items-center gap-3 mb-6 sticky top-36 z-10 bg-[var(--bg-light)]/95 backdrop-blur-sm py-2">
-                            <div className="h-8 w-1.5 bg-[var(--primary)] rounded-full"></div>
-                            <h2 className="text-lg font-bold text-[var(--secondary)]">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                            <div style={{ height: '32px', width: '6px', backgroundColor: 'var(--primary)', borderRadius: '4px' }}></div>
+                            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--primary)' }}>
                                 {new Date(date + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </h2>
                         </div>
 
-                        <div className="space-y-6 relative pl-2">
+                        <div style={{ position: 'relative', paddingLeft: '24px' }}>
                             {/* Vertical Line */}
-                            <div className="absolute left-[19px] top-6 bottom-[-24px] w-0.5 bg-gray-200 z-0"></div>
+                            <div style={{ position: 'absolute', left: '8px', top: '24px', bottom: '-24px', width: '2px', backgroundColor: '#e2e8f0', zIndex: 0 }}></div>
 
                             {activities.map((act, idx) => (
-                                <div key={idx} className="relative pl-10 group">
+                                <div key={idx} style={{ position: 'relative', marginBottom: '24px', paddingLeft: '24px' }}>
                                     {/* Dot */}
-                                    <div className="absolute left-3 top-3 w-4 h-4 rounded-full border-4 border-white bg-[var(--secondary)] shadow-sm z-10 ring-1 ring-gray-100"></div>
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: '-4px',
+                                        top: '24px',
+                                        width: '16px',
+                                        height: '16px',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'var(--secondary)',
+                                        border: '4px solid #fff',
+                                        boxShadow: '0 0 0 1px #e2e8f0',
+                                        zIndex: 10
+                                    }}></div>
 
-                                    {/* Card */}
-                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group-hover:border-orange-100">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <div className="flex flex-col">
-                                                <span className="text-xs font-bold text-[var(--primary)] uppercase tracking-wider mb-1">
+                                    {/* Card using global class */}
+                                    <div className="card timeline-card">
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
                                                     {act.horaInicio ? `${act.horaInicio.substring(0, 5)}` : 'Horario Flexible'}
                                                 </span>
-                                                <h3 className="font-bold text-[var(--secondary)] text-lg leading-tight">{act.actividad}</h3>
+                                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--secondary)', lineHeight: 1.3, margin: 0 }}>{act.actividad}</h3>
                                             </div>
-                                            <span className="material-icons-round text-gray-300 group-hover:text-orange-200 transition-colors">
+                                            <span className="material-icons-round" style={{ color: '#cbd5e1' }}>
                                                 {act.reserva ? 'confirmation_number' : 'place'}
                                             </span>
                                         </div>
 
-                                        <p className="text-sm text-gray-500 mb-4 line-clamp-3 leading-relaxed">
+                                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                             {act.descripcion}
                                         </p>
 
-                                        <div className="flex flex-col gap-3 pt-3 border-t border-gray-50">
-                                            <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
-                                                <span className="material-icons-round text-sm">payments</span>
-                                                <span className={!act.precio ? 'text-green-600' : ''}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 500, color: 'var(--text-muted)' }}>
+                                                <span className="material-icons-round" style={{ fontSize: '18px' }}>payments</span>
+                                                <span style={{ color: !act.precio ? 'var(--success)' : 'inherit', fontWeight: !act.precio ? 'bold' : 'normal' }}>
                                                     {!act.precio ? 'Gratis' : `$${act.precio.toLocaleString()} COP`}
                                                 </span>
                                             </div>
 
                                             {/* Action Button */}
-                                            <div className="flex justify-end mt-1">
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
                                                 {act.reserva ? (
                                                     <a
                                                         href={act.reserva}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-orange-200 hover:shadow-orange-300 transition-all active:scale-95 flex items-center gap-2"
+                                                        className="timeline-btn-primary"
                                                     >
                                                         <span>Reservar</span>
-                                                        <span className="material-icons-round text-sm">calendar_month</span>
+                                                        <span className="material-icons-round" style={{ fontSize: '18px' }}>calendar_month</span>
                                                     </a>
                                                 ) : act.link ? (
                                                     <a
                                                         href={act.link}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="text-[var(--primary)] hover:bg-orange-50 text-sm font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-1"
+                                                        className="timeline-link"
                                                     >
                                                         Ver detalles
-                                                        <span className="material-icons-round text-sm">arrow_forward</span>
+                                                        <span className="material-icons-round" style={{ fontSize: '18px' }}>arrow_forward</span>
                                                     </a>
                                                 ) : (
-                                                    <span className="text-xs text-gray-400 italic px-3 py-2">
+                                                    <span style={{ fontSize: '12px', color: '#cbd5e1', fontStyle: 'italic', padding: '8px 12px' }}>
                                                         Entrada libre / Sin reserva
                                                     </span>
                                                 )}
