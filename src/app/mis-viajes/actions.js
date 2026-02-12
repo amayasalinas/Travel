@@ -37,7 +37,11 @@ export async function getMyTrips(email) {
                 transporte: sol.transporte || []
             };
 
-            const dailyPlan = generateRecommendations(activities, prefs);
+            const dailyPlan = generateRecommendations(activities.map(act => ({
+                ...act,
+                reserva: act.reserva === 1 ? act.link : null,
+                link: act.link // Keep original link for "Ver detalles"
+            })), prefs);
 
             return {
                 id: sol.id,
