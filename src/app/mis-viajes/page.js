@@ -85,19 +85,21 @@ export default function MyTrips() {
                 .timeline-link {
                      color: var(--primary);
                      font-weight: 700;
-                     font-size: 14px;
+                     font-size: 13px;
                      display: inline-flex;
                      align-items: center;
-                     gap: 4px;
-                     padding: 8px 16px;
-                     border-radius: 12px;
-                     background-color: rgba(242, 127, 13, 0.08);
+                     gap: 6px;
+                     padding: 6px 16px;
+                     border-radius: 999px;
+                     background-color: transparent;
+                     border: 1px solid var(--primary);
                      text-decoration: none;
                      transition: all 0.2s;
                      cursor: pointer;
                 }
                 .timeline-link:hover {
-                    background-color: rgba(242, 127, 13, 0.15);
+                    background-color: rgba(242, 127, 13, 0.08);
+                    transform: translateY(-1px);
                 }
                 .dropdown-item {
                     width: 100%;
