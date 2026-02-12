@@ -53,7 +53,7 @@ export default function MyTrips() {
     }
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-light)', color: 'var(--text-dark)', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)' }}>
+        <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-light)', color: 'var(--text-dark)', display: 'flex', flexDirection: 'column', fontFamily: 'var(--font-sans)', position: 'relative' }}>
             <Header variant="light" />
 
             <style jsx global>{`
@@ -74,6 +74,8 @@ export default function MyTrips() {
                     box-shadow: 0 4px 10px rgba(242, 127, 13, 0.3);
                     transition: all 0.2s;
                     text-decoration: none;
+                    border: none;
+                    cursor: pointer;
                 }
                 .timeline-btn-primary:hover {
                     background-color: var(--primary-dark);
@@ -92,6 +94,7 @@ export default function MyTrips() {
                      background-color: rgba(242, 127, 13, 0.08);
                      text-decoration: none;
                      transition: all 0.2s;
+                     cursor: pointer;
                 }
                 .timeline-link:hover {
                     background-color: rgba(242, 127, 13, 0.15);
@@ -114,6 +117,44 @@ export default function MyTrips() {
                 }
                 .dropdown-item:last-child {
                     border-bottom: none;
+                }
+                /* Modal Styles */
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.5);
+                    backdrop-filter: blur(4px);
+                    z-index: 100;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 24px;
+                }
+                .modal-content {
+                    background-color: #fff;
+                    border-radius: 24px;
+                    width: 100%;
+                    max-width: 500px;
+                    max-height: 85vh;
+                    overflow-y: auto;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+                    animation: fadeInUp 0.3s ease-out;
+                    position: relative;
+                }
+                .badge-recommended {
+                    background-color: #22c55e;
+                    color: white;
+                    font-size: 10px;
+                    font-weight: 800;
+                    padding: 4px 8px;
+                    border-radius: 6px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    display: inline-block;
+                    margin-bottom: 6px;
                 }
             `}</style>
 
@@ -166,9 +207,21 @@ export default function MyTrips() {
 function TimelineView({ trips }) {
     const [selectedTripId, setSelectedTripId] = useState(trips[0].id);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [selectedActivity, setSelectedActivity] = useState(null);
 
     // Safety check if selectedTripId doesn't exist anymore
     const selectedTrip = trips.find(t => t.id === selectedTripId) || trips[0];
+
+    // Disable body scroll when modal is open
+    useEffect(() => {
+        if (selectedActivity) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [selectedActivity]);
 
     const getTripLabel = (trip) => {
         const date = new Date(trip.rawDates.start);
@@ -294,84 +347,185 @@ function TimelineView({ trips }) {
                             {/* Vertical Line */}
                             <div style={{ position: 'absolute', left: '8px', top: '24px', bottom: '-24px', width: '2px', backgroundColor: '#e2e8f0', zIndex: 0 }}></div>
 
-                            {activities.map((act, idx) => (
-                                <div key={idx} style={{ position: 'relative', marginBottom: '24px', paddingLeft: '24px' }}>
-                                    {/* Dot */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        left: '-4px',
-                                        top: '24px',
-                                        width: '16px',
-                                        height: '16px',
-                                        borderRadius: '50%',
-                                        backgroundColor: 'var(--secondary)',
-                                        border: '4px solid #fff',
-                                        boxShadow: '0 0 0 1px #e2e8f0',
-                                        zIndex: 10
-                                    }}></div>
+                            {activities.map((act, idx) => {
+                                // Default "Recommended" logic: high rating or has reservation
+                                const isRecommended = act.calificacion >= 4.5 || act.reserva;
 
-                                    {/* Card using global class */}
-                                    <div className="card timeline-card">
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
-                                                    {act.horaInicio ? `${act.horaInicio.substring(0, 5)}` : 'Horario Flexible'}
-                                                </span>
-                                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--secondary)', lineHeight: 1.3, margin: 0 }}>{act.actividad}</h3>
-                                            </div>
-                                            <span className="material-icons-round" style={{ color: '#cbd5e1' }}>
-                                                {act.reserva ? 'confirmation_number' : 'place'}
-                                            </span>
-                                        </div>
+                                return (
+                                    <div key={idx} style={{ position: 'relative', marginBottom: '24px', paddingLeft: '24px' }}>
+                                        {/* Dot */}
+                                        <div style={{
+                                            position: 'absolute',
+                                            left: '-4px',
+                                            top: '24px',
+                                            width: '16px',
+                                            height: '16px',
+                                            borderRadius: '50%',
+                                            backgroundColor: 'var(--secondary)',
+                                            border: '4px solid #fff',
+                                            boxShadow: '0 0 0 1px #e2e8f0',
+                                            zIndex: 10
+                                        }}></div>
 
-                                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                            {act.descripcion}
-                                        </p>
+                                        {/* Card */}
+                                        <div className="card timeline-card">
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
 
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 500, color: 'var(--text-muted)' }}>
-                                                <span className="material-icons-round" style={{ fontSize: '18px' }}>payments</span>
-                                                <span style={{ color: !act.precio ? 'var(--success)' : 'inherit', fontWeight: !act.precio ? 'bold' : 'normal' }}>
-                                                    {!act.precio ? 'Gratis' : `$${act.precio.toLocaleString()} COP`}
-                                                </span>
+                                                    {/* Recommended Badge */}
+                                                    {isRecommended && (
+                                                        <span className="badge-recommended">Recomendado</span>
+                                                    )}
+
+                                                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
+                                                        {act.horaInicio ? `${act.horaInicio.substring(0, 5)}` : 'Horario Flexible'}
+                                                    </span>
+                                                    <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--secondary)', lineHeight: 1.3, margin: 0 }}>{act.actividad}</h3>
+                                                </div>
+                                                <span className="material-icons-round" style={{ color: '#cbd5e1' }}>favorite_border</span>
                                             </div>
 
-                                            {/* Action Button */}
-                                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
-                                                {act.reserva ? (
-                                                    <a
-                                                        href={act.reserva}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="timeline-btn-primary"
-                                                    >
-                                                        <span>Reservar</span>
-                                                        <span className="material-icons-round" style={{ fontSize: '18px' }}>calendar_month</span>
-                                                    </a>
-                                                ) : act.link ? (
-                                                    <a
-                                                        href={act.link}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
+                                            <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                                {act.descripcion}
+                                            </p>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 500, color: 'var(--text-muted)' }}>
+                                                        <span className="material-icons-round" style={{ fontSize: '18px' }}>payments</span>
+                                                        <span style={{ color: !act.precio ? 'var(--success)' : 'inherit', fontWeight: !act.precio ? 'bold' : 'normal' }}>
+                                                            {!act.precio ? 'Gratis' : `$${act.precio.toLocaleString()} COP`}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Logic for actions:
+                                                    If reserva (1): Show "Agendar" button which links to external URL.
+                                                    Always show "Ver detalles" link which opens modal.
+                                                */}
+                                                </div>
+
+                                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px', alignItems: 'center' }}>
+                                                    <button
+                                                        onClick={() => setSelectedActivity(act)}
                                                         className="timeline-link"
+                                                        style={{ background: 'transparent', padding: '0', fontSize: '13px' }}
                                                     >
                                                         Ver detalles
-                                                        <span className="material-icons-round" style={{ fontSize: '18px' }}>arrow_forward</span>
-                                                    </a>
-                                                ) : (
-                                                    <span style={{ fontSize: '12px', color: '#cbd5e1', fontStyle: 'italic', padding: '8px 12px' }}>
-                                                        Entrada libre / Sin reserva
-                                                    </span>
-                                                )}
+                                                        <span className="material-icons-round" style={{ fontSize: '16px' }}>chevron_right</span>
+                                                    </button>
+
+                                                    {act.reserva ? (
+                                                        <a
+                                                            href={act.reserva}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="timeline-btn-primary"
+                                                        >
+                                                            <span>Agendar</span>
+                                                            <span className="material-icons-round" style={{ fontSize: '18px' }}>calendar_month</span>
+                                                        </a>
+                                                    ) : (
+                                                        <span style={{ fontSize: '12px', color: '#cbd5e1', fontStyle: 'italic', padding: '8px 12px' }}>
+                                                            Entrada libre
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     </div>
                 ))}
             </div>
+
+            {/* Activity Detail Modal */}
+            {selectedActivity && (
+                <div className="modal-overlay" onClick={() => setSelectedActivity(null)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        {/* Header Image Placeholder (Gradient) */}
+                        <div style={{
+                            height: '160px',
+                            background: 'linear-gradient(135deg, var(--primary), #ef4444)',
+                            position: 'relative',
+                            display: 'flex',
+                            alignItems: 'flex-end',
+                            padding: '24px'
+                        }}>
+                            <button
+                                onClick={() => setSelectedActivity(null)}
+                                style={{
+                                    position: 'absolute',
+                                    top: '16px',
+                                    right: '16px',
+                                    background: 'rgba(255,255,255,0.2)',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: '32px',
+                                    height: '32px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    color: '#fff'
+                                }}
+                            >
+                                <span className="material-icons-round">close</span>
+                            </button>
+                            <h2 style={{ color: '#fff', fontSize: '24px', fontWeight: 'bold', textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                                {selectedActivity.actividad}
+                            </h2>
+                        </div>
+
+                        <div style={{ padding: '24px' }}>
+                            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+                                <div style={{ flex: 1, backgroundColor: 'var(--bg-light)', padding: '12px', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                                    <span className="material-icons-round text-muted" style={{ fontSize: '20px' }}>schedule</span>
+                                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--secondary)' }}>
+                                        {selectedActivity.duracion_min ? `${selectedActivity.duracion_min} min` : 'Flexible'}
+                                    </span>
+                                </div>
+                                <div style={{ flex: 1, backgroundColor: 'var(--bg-light)', padding: '12px', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                                    <span className="material-icons-round text-muted" style={{ fontSize: '20px' }}>payments</span>
+                                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--secondary)' }}>
+                                        {!selectedActivity.precio ? 'Gratis' : `$${selectedActivity.precio.toLocaleString()}`}
+                                    </span>
+                                </div>
+                                <div style={{ flex: 1, backgroundColor: 'var(--bg-light)', padding: '12px', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                                    <span className="material-icons-round text-muted" style={{ fontSize: '20px' }}>star</span>
+                                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--secondary)' }}>
+                                        {selectedActivity.calificacion || '4.8'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Descripción</h4>
+                            <p style={{ fontSize: '15px', color: 'var(--text-dark)', lineHeight: 1.6, marginBottom: '24px' }}>
+                                {selectedActivity.descripcion}
+                            </p>
+
+                            <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Ubicación</h4>
+                            <p style={{ fontSize: '15px', color: 'var(--text-dark)', lineHeight: 1.6, marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span className="material-icons-round" style={{ color: 'var(--primary)' }}>place</span>
+                                {selectedActivity.ubicacion || 'Medellín, Antioquia'}
+                            </p>
+
+                            {selectedActivity.reserva && (
+                                <a
+                                    href={selectedActivity.reserva}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn btn-primary btn-block"
+                                    style={{ textDecoration: 'none' }}
+                                >
+                                    Reservar Actividad
+                                </a>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
