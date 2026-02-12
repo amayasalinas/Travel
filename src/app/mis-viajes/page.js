@@ -31,7 +31,9 @@ export default function MyTrips() {
         try {
             const res = await getMyTrips(email);
             if (res.success) {
-                setTrips(res.trips);
+                // Sort by date descending (newest first)
+                const sortedTrips = res.trips.sort((a, b) => new Date(b.rawDates.start) - new Date(a.rawDates.start));
+                setTrips(sortedTrips);
             } else {
                 console.error(res.error);
             }
@@ -44,147 +46,208 @@ export default function MyTrips() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[var(--bg-dark)] text-white flex items-center justify-center">
+            <div className="min-h-screen bg-[var(--bg-light)] flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--primary)]"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[var(--bg-light)] text-[var(--text-dark)] flex flex-col">
+        <div className="min-h-screen bg-[var(--bg-light)] text-[var(--text-dark)] flex flex-col font-sans">
             <Header variant="light" />
 
-            <main className="flex-grow container py-10">
-                <h1 className="text-3xl font-bold mb-2">Mis Viajes</h1>
-                <p className="text-[var(--text-muted)] mb-8">Aquí están tus itinerarios personalizados.</p>
-
-                {trips.length === 0 ? (
-                    <div className="text-center py-20 bg-white rounded-2xl shadow-sm">
-                        <span className="material-icons-round text-6xl text-gray-300 mb-4">flight_off</span>
-                        <p className="text-xl font-medium text-gray-500">No tienes viajes planeados aún.</p>
+            {trips.length === 0 ? (
+                <main className="flex-grow container py-20 flex flex-col items-center justify-center text-center">
+                    <div className="bg-white p-12 rounded-3xl shadow-sm max-w-lg w-full">
+                        <span className="material-icons-round text-6xl text-gray-200 mb-6">flight_takeoff</span>
+                        <h2 className="text-2xl font-bold text-[var(--secondary)] mb-2">Aún no tienes viajes</h2>
+                        <p className="text-gray-500 mb-8">¡Es hora de planear tu próxima aventura en Medellín!</p>
                         <button
                             onClick={() => router.push('/planifica')}
-                            className="mt-6 btn btn-primary px-8 py-3 rounded-xl font-bold"
+                            className="btn btn-primary px-8 py-3 rounded-xl font-bold w-full shadow-lg shadow-orange-200"
                         >
-                            Planear mi primer viaje
+                            Crear mi primer itinerario
                         </button>
                     </div>
-                ) : (
-                    <SingleTripView trips={trips} />
-                )}
-            </main>
+                </main>
+            ) : (
+                <TimelineView trips={trips} />
+            )}
 
-            <Footer />
+            {/* Float Button for New Trip */}
+            {trips.length > 0 && (
+                <button
+                    onClick={() => router.push('/planifica')}
+                    className="fixed bottom-6 right-6 w-14 h-14 bg-[var(--primary)] text-white rounded-full shadow-lg shadow-orange-400/40 hover:bg-[var(--primary-dark)] transition-all active:scale-90 z-30 flex items-center justify-center"
+                    title="Planear nuevo viaje"
+                >
+                    <span className="material-icons-round text-2xl">add</span>
+                </button>
+            )}
         </div>
     );
 }
 
-function SingleTripView({ trips }) {
+function TimelineView({ trips }) {
     const [selectedTripId, setSelectedTripId] = useState(trips[0].id);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    // Safety check if selectedTripId doesn't exist anymore
     const selectedTrip = trips.find(t => t.id === selectedTripId) || trips[0];
 
+    const getTripLabel = (trip) => {
+        const date = new Date(trip.rawDates.start);
+        const month = date.toLocaleDateString('es-CO', { month: 'long' });
+        const year = date.getFullYear();
+        // Capitalize month
+        const monthCap = month.charAt(0).toUpperCase() + month.slice(1);
+        return `Viaje a Medellín - ${monthCap} ${year}`;
+    };
+
     return (
-        <div className="animate-fade-in">
-            {/* Trip Selector (only if > 1) */}
-            {trips.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide">
-                    {trips.map(trip => (
-                        <button
-                            key={trip.id}
-                            onClick={() => setSelectedTripId(trip.id)}
-                            className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-bold transition-all ${selectedTripId === trip.id
-                                ? 'bg-[var(--primary)] text-white shadow-lg scale-105'
-                                : 'bg-white text-gray-600 hover:bg-gray-50'
-                                }`}
-                        >
-                            {trip.dates}
-                        </button>
-                    ))}
-                </div>
-            )}
-
-            {/* Trip Details */}
-            <div className="bg-white rounded-3xl shadow-[var(--shadow-lg)] overflow-hidden border border-gray-100">
-                {/* Header Image/Gradient */}
-                <div className="bg-gradient-to-r from-[var(--secondary)] to-[#2d4a6f] text-white p-8 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8 opacity-10">
-                        <span className="material-icons-round text-9xl transform rotate-12">flight</span>
-                    </div>
-                    <div className="relative z-10">
-                        <h2 className="text-3xl font-extrabold mb-2">{selectedTrip.destination}</h2>
-                        <div className="flex items-center gap-2 opacity-90 text-sm font-medium">
-                            <span className="material-icons-round text-base">calendar_today</span>
-                            {selectedTrip.dates}
+        <main className="flex-grow container max-w-2xl mx-auto px-4 py-8 pb-24">
+            {/* Header / Trip Selector */}
+            <div className="flex justify-between items-center mb-8 sticky top-20 z-20 bg-[var(--bg-light)]/95 backdrop-blur-sm py-2">
+                <div className="relative w-full mr-3">
+                    <button
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="flex items-center justify-between w-full bg-white px-5 py-3 rounded-full shadow-sm border border-gray-100 hover:border-gray-200 transition-all text-left"
+                    >
+                        <div className="flex items-center gap-3 truncate">
+                            <span className="material-icons-round text-[var(--primary)] text-xl">history</span>
+                            <span className="font-bold text-[var(--secondary)] truncate text-sm sm:text-base">
+                                {getTripLabel(selectedTrip)}
+                            </span>
                         </div>
-                    </div>
+                        <span className={`material-icons-round text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {isDropdownOpen && (
+                        <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-30 animate-fade-in-up">
+                            {trips.map(trip => (
+                                <button
+                                    key={trip.id}
+                                    onClick={() => {
+                                        setSelectedTripId(trip.id);
+                                        setIsDropdownOpen(false);
+                                    }}
+                                    className={`w-full text-left px-5 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${selectedTrip.id === trip.id ? 'bg-orange-50' : ''
+                                        }`}
+                                >
+                                    <div>
+                                        <p className={`font-bold text-sm ${selectedTrip.id === trip.id ? 'text-[var(--primary)]' : 'text-gray-700'}`}>
+                                            {getTripLabel(trip)}
+                                        </p>
+                                        <p className="text-xs text-gray-400 mt-1">{trip.dates}</p>
+                                    </div>
+                                    {selectedTrip.id === trip.id && (
+                                        <span className="material-icons-round text-[var(--primary)]">check</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                <div className="p-6 md:p-8">
-                    {Object.entries(selectedTrip.plan).map(([date, activities]) => (
-                        <div key={date} className="mb-10 last:mb-0 relative pl-6 border-l-2 border-dashed border-gray-200">
-                            <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-[var(--primary)] ring-4 ring-orange-50"></div>
-                            <h3 className="text-[var(--secondary)] font-bold text-xl mb-6 flex items-center gap-2">
-                                {new Date(date + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
-                            </h3>
+                <button className="p-3 bg-white rounded-full shadow-sm border border-gray-100 text-gray-400 hover:text-[var(--primary)] transition-colors flex-shrink-0">
+                    <span className="material-icons-round">filter_list</span>
+                </button>
+            </div>
 
-                            <div className="space-y-6">
-                                {activities.map((act, idx) => (
-                                    <div key={idx} className="group flex flex-col md:flex-row gap-5 p-5 rounded-2xl bg-[#f8f9fa] hover:bg-white hover:shadow-[var(--shadow-md)] transition-all border border-transparent hover:border-gray-100">
-                                        {/* Time & Price Badge */}
-                                        <div className="md:w-48 flex-shrink-0 flex flex-row md:flex-col justify-between md:justify-start gap-2">
-                                            <div className="text-sm font-bold text-[var(--secondary)] flex items-center gap-1">
-                                                <span className="material-icons-round text-lg text-[var(--primary)]">schedule</span>
-                                                {act.horaInicio ? `${act.horaInicio.substring(0, 5)}` : 'Flexible'}
+            {/* Info Box */}
+            <div className="mb-8 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-xl shadow-sm animate-fade-in">
+                <div className="flex items-start gap-3">
+                    <span className="material-icons-round text-blue-500 text-lg mt-0.5">info</span>
+                    <p className="text-sm text-blue-800 font-medium">
+                        Para algunas actividades es necesario reservar con anticipación.
+                    </p>
+                </div>
+            </div>
+
+            {/* Timeline */}
+            <div>
+                {Object.entries(selectedTrip.plan).map(([date, activities], dateIndex) => (
+                    <div key={date} className="mb-8 animate-fade-in" style={{ animationDelay: `${dateIndex * 100}ms` }}>
+                        {/* Date Header */}
+                        <div className="flex items-center gap-3 mb-6 sticky top-36 z-10 bg-[var(--bg-light)]/95 backdrop-blur-sm py-2">
+                            <div className="h-8 w-1.5 bg-[var(--primary)] rounded-full"></div>
+                            <h2 className="text-lg font-bold text-[var(--secondary)]">
+                                {new Date(date + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </h2>
+                        </div>
+
+                        <div className="space-y-6 relative pl-2">
+                            {/* Vertical Line */}
+                            <div className="absolute left-[19px] top-6 bottom-[-24px] w-0.5 bg-gray-200 z-0"></div>
+
+                            {activities.map((act, idx) => (
+                                <div key={idx} className="relative pl-10 group">
+                                    {/* Dot */}
+                                    <div className="absolute left-3 top-3 w-4 h-4 rounded-full border-4 border-white bg-[var(--secondary)] shadow-sm z-10 ring-1 ring-gray-100"></div>
+
+                                    {/* Card */}
+                                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group-hover:border-orange-100">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-bold text-[var(--primary)] uppercase tracking-wider mb-1">
+                                                    {act.horaInicio ? `${act.horaInicio.substring(0, 5)}` : 'Horario Flexible'}
+                                                </span>
+                                                <h3 className="font-bold text-[var(--secondary)] text-lg leading-tight">{act.actividad}</h3>
                                             </div>
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold w-fit ${!act.precio ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
-                                                {!act.precio ? 'Gratis' : `$${act.precio.toLocaleString()}`}
+                                            <span className="material-icons-round text-gray-300 group-hover:text-orange-200 transition-colors">
+                                                {act.reserva ? 'confirmation_number' : 'place'}
                                             </span>
                                         </div>
 
-                                        {/* Content */}
-                                        <div className="flex-grow">
-                                            <h4 className="font-bold text-[var(--secondary)] text-lg mb-2">{act.actividad}</h4>
-                                            <p className="text-sm text-gray-500 leading-relaxed mb-4">{act.descripcion}</p>
+                                        <p className="text-sm text-gray-500 mb-4 line-clamp-3 leading-relaxed">
+                                            {act.descripcion}
+                                        </p>
 
-                                            {/* Actions */}
-                                            <div className="flex flex-wrap gap-3 mt-auto">
+                                        <div className="flex flex-col gap-3 pt-3 border-t border-gray-50">
+                                            <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
+                                                <span className="material-icons-round text-sm">payments</span>
+                                                <span className={!act.precio ? 'text-green-600' : ''}>
+                                                    {!act.precio ? 'Gratis' : `$${act.precio.toLocaleString()} COP`}
+                                                </span>
+                                            </div>
+
+                                            {/* Action Button */}
+                                            <div className="flex justify-end mt-1">
                                                 {act.reserva ? (
-                                                    <a href={act.reserva} target="_blank" rel="noopener noreferrer"
-                                                        className="flex-1 md:flex-none text-center bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2">
-                                                        <span>Reservar ahora</span>
+                                                    <a
+                                                        href={act.reserva}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-orange-200 hover:shadow-orange-300 transition-all active:scale-95 flex items-center gap-2"
+                                                    >
+                                                        <span>Reservar</span>
+                                                        <span className="material-icons-round text-sm">calendar_month</span>
+                                                    </a>
+                                                ) : act.link ? (
+                                                    <a
+                                                        href={act.link}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-[var(--primary)] hover:bg-orange-50 text-sm font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-1"
+                                                    >
+                                                        Ver detalles
                                                         <span className="material-icons-round text-sm">arrow_forward</span>
                                                     </a>
                                                 ) : (
-                                                    <span className="text-xs text-gray-400 flex items-center gap-1 bg-gray-100 px-3 py-2 rounded-lg pointer-events-none">
-                                                        <span className="material-icons-round text-sm">info</span>
-                                                        Presencial / Sin reserva online
+                                                    <span className="text-xs text-gray-400 italic px-3 py-2">
+                                                        Entrada libre / Sin reserva
                                                     </span>
-                                                )}
-
-                                                {act.link && (
-                                                    <a href={act.link} target="_blank" rel="noopener noreferrer"
-                                                        className="flex-1 md:flex-none text-center text-[var(--secondary)] bg-white border border-gray-200 hover:bg-gray-50 px-5 py-2.5 rounded-xl text-sm font-bold transition-all">
-                                                        Más info
-                                                    </a>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-
-                    {/* Footer CTA */}
-                    <div className="mt-12 p-6 bg-blue-50 rounded-2xl border border-blue-100 text-center">
-                        <p className="text-blue-900 font-medium mb-3">¿Necesitas ayuda con tus reservas?</p>
-                        <button className="text-blue-700 font-bold hover:underline flex items-center justify-center gap-2">
-                            <span className="material-icons-round">support_agent</span>
-                            Contactar soporte de Assitour
-                        </button>
                     </div>
-                </div>
+                ))}
             </div>
-        </div>
+        </main>
     );
 }
