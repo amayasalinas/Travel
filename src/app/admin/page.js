@@ -1,22 +1,36 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase';
 
 export default function AdminPage() {
-    const [authorized, setAuthorized] = useState(false);
-    const [checking, setChecking] = useState(true);
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState('');
-    const [history, setHistory] = useState([]);
     const [recordCount, setRecordCount] = useState(0);
     const [dragOver, setDragOver] = useState(false);
+    const router = useRouter();
+    const supabase = createClient();
 
     useEffect(() => {
-        checkAuth();
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                router.push('/admin/login');
+            } else {
+                setUser(session.user);
+                // Optional: Check database perm or just rely on the fact they logged in via allowed email
+                fetchStats();
+            }
+            setLoading(false);
+        };
+        checkSession();
     }, []);
 
-    const checkAuth = async () => {
+    const fetchStats = async () => {
         try {
             const res = await fetch('/api/auth', {
                 method: 'POST',
@@ -24,11 +38,13 @@ export default function AdminPage() {
                 body: JSON.stringify({ action: 'check-admin' })
             });
             const data = await res.json();
-            setAuthorized(data.isAdmin === true);
             if (data.recordCount) setRecordCount(data.recordCount);
-            if (data.history) setHistory(data.history);
         } catch (err) { }
-        setChecking(false);
+    };
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        router.push('/admin/login');
     };
 
     const handleUpload = async () => {
@@ -48,7 +64,6 @@ export default function AdminPage() {
                 setMessage(`✅ ${data.count} registros cargados exitosamente.`);
                 setRecordCount(data.count);
                 setFile(null);
-                checkAuth();
             } else {
                 setMessage(`❌ Error: ${data.error}`);
             }
@@ -67,7 +82,7 @@ export default function AdminPage() {
         }
     }, []);
 
-    if (checking) {
+    if (loading) {
         return (
             <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div className="spinner" />
@@ -75,20 +90,7 @@ export default function AdminPage() {
         );
     }
 
-    if (!authorized) {
-        return (
-            <div style={{ minHeight: '100vh', background: 'var(--bg-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div className="card" style={{ maxWidth: 400, textAlign: 'center', padding: 40 }}>
-                    <span className="material-icons-round" style={{ fontSize: 48, color: 'var(--danger)', marginBottom: 16 }}>lock</span>
-                    <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Acceso restringido</h2>
-                    <p style={{ color: 'var(--text-muted)', fontSize: 14, marginBottom: 24 }}>
-                        Esta sección solo está disponible para administradores.
-                    </p>
-                    <Link href="/login"><button className="btn btn-primary">Iniciar sesión</button></Link>
-                </div>
-            </div>
-        );
-    }
+    if (!user) return null; // Redirecting...
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--bg-light)' }}>
