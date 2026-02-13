@@ -83,6 +83,27 @@ export default function Home() {
           </Link>
         </div>
 
+        {/* Floating Action Button (Hidden) */}
+        <div style={{
+          position: 'absolute',
+          bottom: '100px',
+          right: '24px',
+          zIndex: 10,
+          display: 'none' // Hidden as requested
+        }}>
+          <button style={{
+            width: '48px', height: '48px', borderRadius: '50%',
+            background: 'var(--primary)', border: 'none',
+            color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)', cursor: 'pointer'
+          }}>
+            <span className="material-icons-round">nights_stay</span>
+          </button>
+        </div>
+      </section>
+
+      {/* Experiences Section */}
+      <section className="container container-wide" style={{ marginTop: -60, paddingBottom: 100, position: 'relative', zIndex: 20 }}>
         <div style={{
           display: 'flex', justifyContent: 'space-between',
           alignItems: 'baseline', marginBottom: 24
@@ -91,6 +112,9 @@ export default function Home() {
             <h3 style={{ fontSize: 24, fontWeight: 700, color: 'var(--secondary)' }}>Experiencias Destacadas</h3>
             <p style={{ color: 'var(--text-muted)', marginTop: 4 }}>Los tours mejor calificados por viajeros como tú.</p>
           </div>
+          <Link href="/explorar" style={{ fontSize: 14, fontWeight: 600, color: 'var(--primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, visibility: 'hidden' }}>
+            Ver todo <span className="material-icons-round">arrow_forward</span>
+          </Link>
         </div>
 
         {/* Carousel / Grid */}
