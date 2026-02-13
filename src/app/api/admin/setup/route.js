@@ -19,7 +19,7 @@ export async function POST(request) {
         const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
 
         let result;
-        const redirectUrl = process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/admin/update-password` : 'http://localhost:3000/admin/update-password';
+        const redirectUrl = process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/admin/update-password` : 'https://travel-five-iota.vercel.app/admin/update-password';
 
         if (user) {
             // User exists, send password reset

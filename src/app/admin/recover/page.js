@@ -28,7 +28,8 @@ export default function AdminRecover() {
         const { error } = await supabase.auth.signInWithOtp({
             email,
             options: {
-                shouldCreateUser: false, // User must exist (invited via API or manual)
+                shouldCreateUser: false,
+                emailRedirectTo: 'https://travel-five-iota.vercel.app/admin/recover'
             }
         });
 
