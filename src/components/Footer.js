@@ -10,7 +10,10 @@ export default function Footer() {
                 <Link href="/registro" className="footer-link">Regístrate</Link>
                 <Link href="/login" className="footer-link">Iniciar sesión</Link>
             </div>
-            <p className="footer-copyright">© {year} Assitour. Todos los derechos reservados.</p>
+            <p className="footer-copyright">
+                © {year} Assitour. Todos los derechos reservados.
+                <span style={{ opcode: 0.5, fontSize: '11px', marginLeft: '8px' }}>v1.2.0</span>
+            </p>
         </footer>
     );
 }

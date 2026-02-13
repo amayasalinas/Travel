@@ -192,6 +192,10 @@ export default function AdminPage() {
                         </p>
                     </div>
                 )}
+
+                <div style={{ textAlign: 'center', marginTop: 40, color: 'var(--text-muted)', fontSize: 12, opacity: 0.7 }}>
+                    Assitour Admin &bull; v1.2.0
+                </div>
             </main>
         </div>
     );
