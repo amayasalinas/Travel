@@ -123,7 +123,7 @@ export default function AdminPage() {
                     }}>AS</div>
                     <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: 1 }}>Administrador</div>
-                        <div style={{ fontSize: 14, color: 'var(--text-dark)' }}>amaya_salinas@hotmail.com</div>
+                        <div style={{ fontSize: 14, color: 'var(--text-dark)' }}>{user?.email}</div>
                     </div>
                 </div>
 
