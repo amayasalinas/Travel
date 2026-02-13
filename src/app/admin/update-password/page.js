@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
 export default function UpdatePassword() {
@@ -8,7 +8,6 @@ export default function UpdatePassword() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const router = useRouter();
-    const supabase = createClient();
 
     useEffect(() => {
         // Check if we have a hash fragment (implicit flow) or just simple session check

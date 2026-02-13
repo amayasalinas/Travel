@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
 export default function AdminLogin() {
@@ -9,7 +9,6 @@ export default function AdminLogin() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const router = useRouter();
-    const supabase = createClient();
 
     const handleLogin = async (e) => {
         e.preventDefault();

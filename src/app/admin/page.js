@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 export default function AdminPage() {
     const [loading, setLoading] = useState(true);
@@ -13,7 +13,6 @@ export default function AdminPage() {
     const [recordCount, setRecordCount] = useState(0);
     const [dragOver, setDragOver] = useState(false);
     const router = useRouter();
-    const supabase = createClient();
 
     useEffect(() => {
         const checkSession = async () => {
