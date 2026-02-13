@@ -22,16 +22,10 @@ export default function Header({ variant = 'dark', transparent = false }) {
                     {/* Desktop Navigation */}
                     <nav className="desktop-nav">
                         <Link href="/" className={`nav-link ${pathname === '/' ? 'active' : ''}`}>Inicio</Link>
-                        <Link href="/explorar" className="nav-link">Explorar</Link>
-                        <Link href="/mapa" className="nav-link">Mapa</Link>
-                        <Link href="/mis-viajes" className="nav-link">Favoritos</Link>
                     </nav>
                 </div>
 
                 <div className="header-actions">
-                    <button className="header-btn" title="Buscar">
-                        <span className="material-icons-round" style={{ fontSize: 20 }}>search</span>
-                    </button>
                     <Link href="/login">
                         <button className="header-btn" title="Mi cuenta">
                             <span className="material-icons-round" style={{ fontSize: 20 }}>person</span>
