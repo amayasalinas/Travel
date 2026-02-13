@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function AdminLogin() {
@@ -93,15 +94,15 @@ export default function AdminLogin() {
 
                 <div style={{ marginTop: '24px', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
                     <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>¿Es tu primera vez aquí?</p>
-                    <button
-                        type="button"
-                        className="btn btn-ghost btn-sm"
-                        onClick={handleFirstAccess}
-                        disabled={loading}
-                        style={{ fontSize: '14px', color: 'var(--primary)', fontWeight: '600' }}
-                    >
-                        Primer Ingreso / Olvidé mi contraseña
-                    </button>
+                    <Link href="/admin/recover">
+                        <button
+                            type="button"
+                            className="btn btn-ghost btn-sm"
+                            style={{ fontSize: '14px', color: 'var(--primary)', fontWeight: '600' }}
+                        >
+                            Primer Ingreso / Olvidé mi contraseña
+                        </button>
+                    </Link>
                 </div>
 
                 {message && (
