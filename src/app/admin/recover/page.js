@@ -17,54 +17,22 @@ export default function AdminRecover() {
         setLoading(true);
         setMessage('');
 
-        // Whitelist check (client-side for UX, server enforces it too via RLS or logic)
-        const allowed = ['amaya_salinas@hotmail.com', 'admin@assitour.com'];
-        if (!allowed.includes(email.toLowerCase())) {
-            setMessage('❌ Este correo no está autorizado.');
-            setLoading(false);
-            return;
-        }
+        try {
+            const res = await fetch('/api/admin/recover', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
 
-        const { error } = await supabase.auth.signInWithOtp({
-            email,
-            options: {
-                shouldCreateUser: false,
-                emailRedirectTo: 'https://travel-five-iota.vercel.app/admin/recover'
-            }
-        });
-
-        if (error) {
-            // If user doesn't exist, we might need to invite them first via API
-            if (error.message.includes('Signups not allowed') || error.message.includes('User not found')) {
-                // Try to trigger the invite API
-                try {
-                    const res = await fetch('/api/admin/setup', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        setMessage('✅ Te hemos enviado un enlace/código al correo.');
-                        // Because inviteUser sends a link, not OTP usually, providing OTP flow here is tricky 
-                        // unless we use the numeric OTP option in Supabase settings.
-                        // IMPORTANT: Default Supabase Email Provider sends a LINK (Magic Link).
-                        // To use OTP, we need to extract it or use the link.
-
-                        // If the user wants to enter a code, we rely on Supabase sending a code.
-                        setStep(2);
-                    } else {
-                        setMessage('❌ ' + data.error);
-                    }
-                } catch (err) {
-                    setMessage('❌ Error intentando registrar.');
-                }
+            if (data.success) {
+                setMessage('✅ Código enviado. Revisa tu correo (Bandeja de entrada o Spam).');
+                setStep(2);
             } else {
-                setMessage('❌ Error: ' + error.message);
+                setMessage('❌ ' + data.error);
             }
-        } else {
-            setMessage('✅ Código enviado. Revisa tu correo.');
-            setStep(2);
+        } catch (err) {
+            setMessage('❌ Error de conexión.');
         }
         setLoading(false);
     };
@@ -74,37 +42,35 @@ export default function AdminRecover() {
         setLoading(true);
         setMessage('');
 
-        // 1. Verify OTP (Login)
-        const { data: { session }, error: verifyError } = await supabase.auth.verifyOtp({
-            email,
-            token: otp,
-            type: 'email',
-        });
+        try {
+            // 1. Verify OTP & Set Password on Server
+            const res = await fetch('/api/admin/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp, password })
+            });
+            const data = await res.json();
 
-        if (verifyError) {
-            setMessage('❌ Código inválido o expirado.');
-            setLoading(false);
-            return;
-        }
+            if (data.success) {
+                setMessage('✅ Contraseña guardada. Iniciando sesión...');
 
-        if (!session) {
-            setMessage('❌ No se pudo iniciar sesión.');
-            setLoading(false);
-            return;
-        }
+                // 2. Auto-login client-side with new password
+                const { error: loginError } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
 
-        // 2. Update Password
-        const { error: updateError } = await supabase.auth.updateUser({
-            password: password
-        });
-
-        if (updateError) {
-            setMessage('❌ Error guardando contraseña: ' + updateError.message);
-        } else {
-            setMessage('✅ Contraseña establecida. Entrando...');
-            setTimeout(() => {
-                router.push('/admin');
-            }, 1500);
+                if (loginError) {
+                    setMessage('⚠️ Contraseña cambiada, pero error al entrar: ' + loginError.message);
+                    setTimeout(() => router.push('/admin/login'), 2000);
+                } else {
+                    setTimeout(() => router.push('/admin'), 1000);
+                }
+            } else {
+                setMessage('❌ ' + data.error);
+            }
+        } catch (err) {
+            setMessage('❌ Error de conexión.');
         }
         setLoading(false);
     };
