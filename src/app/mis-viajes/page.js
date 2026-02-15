@@ -416,10 +416,10 @@ function TimelineView({ trips }) {
                                                         <span className="material-icons-round" style={{ fontSize: '16px' }}>chevron_right</span>
                                                     </button>
 
-                                                    {/* Refined Logic: Show 'Agendar' if act.reserva OR act.link exists */}
+                                                    {/* Condition: Reserva flag is true OR link exists */}
                                                     {(act.reserva || act.link) ? (
                                                         <a
-                                                            href={act.reserva || act.link}
+                                                            href={act.link || '#'} // Use the link. If missing but reserved... well, it's a dead link for now.
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="timeline-btn-primary"
@@ -516,7 +516,7 @@ function TimelineView({ trips }) {
 
                             {(selectedActivity.reserva || selectedActivity.link) && (
                                 <a
-                                    href={selectedActivity.reserva || selectedActivity.link}
+                                    href={selectedActivity.link || '#'}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="btn btn-primary btn-block"

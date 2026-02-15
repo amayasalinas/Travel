@@ -40,8 +40,8 @@ export async function getMyTrips(email) {
             const dailyPlan = generateRecommendations(activities.map(act => ({
                 ...act,
                 // Loosen check: 1, "1", true
-                reserva: (act.reserva === 1 || act.reserva === '1' || act.reserva === true) ? act.link : null,
-                link: act.link // Keep original link for "Ver detalles"
+                reserva: (act.reserva === 1 || act.reserva === '1' || act.reserva === true), // Keep as boolean
+                link: act.link || act.Link || '' // Normalize link (handle lowercase or Capitalized)
             })), prefs);
 
             return {
