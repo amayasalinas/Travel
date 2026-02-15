@@ -416,9 +416,10 @@ function TimelineView({ trips }) {
                                                         <span className="material-icons-round" style={{ fontSize: '16px' }}>chevron_right</span>
                                                     </button>
 
-                                                    {act.reserva ? (
+                                                    {/* Refined Logic: Show 'Agendar' if act.reserva OR act.link exists */}
+                                                    {(act.reserva || act.link) ? (
                                                         <a
-                                                            href={act.reserva}
+                                                            href={act.reserva || act.link}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="timeline-btn-primary"
@@ -513,9 +514,9 @@ function TimelineView({ trips }) {
                                 {selectedActivity.ubicacion || 'Medellín, Antioquia'}
                             </p>
 
-                            {selectedActivity.reserva && (
+                            {(selectedActivity.reserva || selectedActivity.link) && (
                                 <a
-                                    href={selectedActivity.reserva}
+                                    href={selectedActivity.reserva || selectedActivity.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="btn btn-primary btn-block"
