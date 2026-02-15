@@ -15,14 +15,23 @@ export function generateItineraryEmail({ nombre, fechaInicio, fechaFin, activiti
     for (const act of activities) {
       const timeRange = act.horaInicio && act.horaFin ? `${formatTime(act.horaInicio)} - ${formatTime(act.horaFin)}` : '';
       const priceLabel = formatPrice(act.precio);
-      const reserveBtn = act.reserva ? `
+      // Logic update: Treat as reservable if act.reserva is true/1 OR if there is a link
+      const isReservable = act.reserva || (act.link && act.link.trim().length > 0);
+
+      const reserveBtn = isReservable ? `
         <a href="https://travel-five-iota.vercel.app/mis-viajes" style="display:inline-block;background:#f27f0d;color:#fff;padding:10px 24px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:10px;font-size:14px;">
           📅 Ver detalles y reservar
         </a>` : '';
+
+      // We still show the direct link if it exists, or maybe we hide it if we are showing the reserve button?
+      // The user said "se manejará como una actividad con reserva".
+      // Usually reserve button sends to /mis-viajes. 
+      // Let's keep the direct link as "Ver más información" just in case, unless it's redundant.
+      // Current design has both if link exists.
       const linkBtn = act.link ? `<a href="${act.link}" style="color:#f27f0d;font-weight:600;text-decoration:none;font-size:13px;">Ver más información →</a>` : '';
 
       activitiesHtml += `
-        <div style="background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;border-left:4px solid ${act.reserva ? '#f27f0d' : '#e2e8f0'};">
+        <div style="background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;border-left:4px solid ${isReservable ? '#f27f0d' : '#e2e8f0'};">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <span style="color:#f27f0d;font-weight:700;font-size:14px;">🕐 ${timeRange}</span>
             <span style="background:${priceLabel === 'Gratis' ? '#16a34a' : '#1B2D45'};color:#fff;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">${priceLabel}</span>
