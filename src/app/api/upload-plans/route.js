@@ -99,11 +99,29 @@ export async function POST(request) {
             return NextResponse.json({ success: false, error: 'El archivo está vacío' });
         }
 
-        // Transform data
+        // Create a normalized map for headers (lowercase -> standard key)
+        const headerMap = {};
+        const range = XLSX.utils.decode_range(sheet['!ref']);
+        const firstRow = [];
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+            const cell = sheet[XLSX.utils.encode_cell({ r: range.s.r, c: C })];
+            if (cell && cell.v) firstRow.push(String(cell.v));
+        }
+
+        // Map clean headers to original headers
+        // actually sheet_to_json uses original headers. 
+        // We need to map our COLUMN_MAP keys to the actual keys in the row.
+
+        // Better approach: When iterating rows, try to find the match dynamically
         const records = rawData.map((row, idx) => {
             const record = {};
+            // Get all keys from the row to support case-insensitive matching
+            const rowKeys = Object.keys(row);
+
             for (const [excelCol, dbCol] of Object.entries(COLUMN_MAP)) {
-                let value = row[excelCol];
+                // Find matching key in row (case insensitive, trimmed)
+                const actualKey = rowKeys.find(k => k.trim().toLowerCase() === excelCol.trim().toLowerCase());
+                let value = actualKey ? row[actualKey] : undefined;
 
                 // Special handling for specific columns
                 if (dbCol === 'id') {

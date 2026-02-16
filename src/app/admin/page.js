@@ -102,13 +102,17 @@ export default function AdminPage() {
                         <span className="material-icons-round" style={{ color: 'var(--primary)', fontSize: 22 }}>settings</span>
                         <span style={{ fontWeight: 800, fontSize: 22, color: 'var(--primary)' }}>Assitour</span>
                     </Link>
-                    <Link href="/" style={{
-                        display: 'flex', alignItems: 'center', gap: 4,
-                        color: 'var(--text-muted)', textDecoration: 'none', fontSize: 14
-                    }}>
+                    <button
+                        onClick={handleLogout}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: 4,
+                            color: 'var(--text-muted)', background: 'none', border: 'none',
+                            cursor: 'pointer', fontSize: 14, padding: 0
+                        }}
+                    >
                         <span className="material-icons-round" style={{ fontSize: 18 }}>logout</span>
-                        Salir
-                    </Link>
+                        Cerrar Sesión
+                    </button>
                 </div>
             </header>
 
