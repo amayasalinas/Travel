@@ -44,12 +44,21 @@ export async function getMyTrips(email) {
                 link: act.link || act.Link || '' // Normalize link (handle lowercase or Capitalized)
             })), prefs);
 
+            // Calculate total price
+            let totalPrice = 0;
+            Object.values(dailyPlan).forEach(dayActs => {
+                dayActs.forEach(act => {
+                    if (act.precio) totalPrice += act.precio;
+                });
+            });
+
             return {
                 id: sol.id,
                 destination: 'Medellín, Colombia',
                 dates: `${new Date(sol.fecha_inicio).toLocaleDateString('es-CO')} - ${new Date(sol.fecha_fin).toLocaleDateString('es-CO')}`,
                 rawDates: { start: sol.fecha_inicio, end: sol.fecha_fin },
-                plan: dailyPlan
+                plan: dailyPlan,
+                totalPrice // Return total price
             };
         });
 

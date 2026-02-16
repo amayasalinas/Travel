@@ -261,6 +261,11 @@ function TimelineView({ trips }) {
                                 {getTripLabel(selectedTrip)}
                             </span>
                         </div>
+                        {selectedTrip.totalPrice > 0 && (
+                            <span style={{ fontSize: '13px', color: 'var(--success)', fontWeight: 'bold', marginRight: '8px', backgroundColor: '#dcfce7', padding: '4px 10px', borderRadius: '12px' }}>
+                                ${selectedTrip.totalPrice.toLocaleString()} COP
+                            </span>
+                        )}
                         <span className="material-icons-round" style={{ color: '#94a3b8', transform: isDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>expand_more</span>
                     </button>
 
@@ -298,6 +303,11 @@ function TimelineView({ trips }) {
                                             {getTripLabel(trip)}
                                         </p>
                                         <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{trip.dates}</p>
+                                        {trip.totalPrice > 0 && (
+                                            <p style={{ fontSize: '12px', color: 'var(--success)', fontWeight: 'bold' }}>
+                                                Presupuesto: ${trip.totalPrice.toLocaleString()} COP
+                                            </p>
+                                        )}
                                     </div>
                                     {selectedTrip.id === trip.id && (
                                         <span className="material-icons-round" style={{ color: 'var(--primary)' }}>check</span>
