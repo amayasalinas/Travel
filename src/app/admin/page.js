@@ -27,14 +27,15 @@ export default function AdminPage() {
             setLoading(false);
         };
         checkSession();
-    }, []);
+    }, [router]);
 
     const fetchStats = async () => {
         try {
+            const { data: { session } } = await supabase.auth.getSession();
             const res = await fetch('/api/auth', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'check-admin' })
+                body: JSON.stringify({ action: 'check-admin', email: session?.user?.email })
             });
             const data = await res.json();
             if (data.recordCount) setRecordCount(data.recordCount);
@@ -54,8 +55,12 @@ export default function AdminPage() {
         formData.append('file', file);
 
         try {
+            const { data: { session } } = await supabase.auth.getSession();
             const res = await fetch('/api/upload-plans', {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token}`,
+                },
                 body: formData
             });
             const data = await res.json();

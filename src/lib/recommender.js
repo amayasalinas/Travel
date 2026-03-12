@@ -119,7 +119,11 @@ export function generateRecommendations(activities, formData) {
     const end = new Date(fechaFin + 'T12:00:00');
 
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        dates.push(d.toISOString().split('T')[0]);
+        // Extract date components directly to avoid UTC conversion issues
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        dates.push(`${yyyy}-${mm}-${dd}`);
     }
 
     // Score all activities

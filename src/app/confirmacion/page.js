@@ -55,7 +55,7 @@ export default function ConfirmacionPage() {
                     <div>
                         <h3 style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>Revisa tu correo</h3>
                         <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                            Recibirás tu plan de viaje detallado en aproximadamente <strong style={{ color: 'var(--primary)' }}>5 minutos</strong>.
+                            Recibirás tu plan de viaje detallado <strong style={{ color: 'var(--primary)' }}>en unos segundos</strong>.
                         </p>
                     </div>
                 </div>

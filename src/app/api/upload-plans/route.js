@@ -80,8 +80,27 @@ function parseBooleanish(value) {
     return false;
 }
 
+const ADMIN_EMAILS = [
+    'amaya_salinas@hotmail.com',
+    'admin@assitour.com',
+];
+
 export async function POST(request) {
     try {
+        // Verify admin authentication
+        const authHeader = request.headers.get('authorization');
+        if (!authHeader) {
+            return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+        }
+
+        const supabaseAuth = createServiceClient();
+        const token = authHeader.replace('Bearer ', '');
+        const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
+
+        if (authError || !user || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+            return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 403 });
+        }
+
         const formData = await request.formData();
         const file = formData.get('file');
 
@@ -132,7 +151,7 @@ export async function POST(request) {
                     record[dbCol] = parseExcelDate(value);
                 } else if (dbCol.startsWith('horario_')) {
                     record[dbCol] = parseTimeValue(value);
-                } else if (dbCol === 'no_festivos' || dbCol === 'cierre_primer_dia_habil') {
+                } else if (dbCol === 'reserva' || dbCol === 'no_festivos' || dbCol === 'cierre_primer_dia_habil') {
                     record[dbCol] = parseBooleanish(value);
                 } else {
                     record[dbCol] = value != null ? String(value) : null;

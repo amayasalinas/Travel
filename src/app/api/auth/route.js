@@ -105,6 +105,11 @@ export async function POST(request) {
         }
 
         case 'check-admin': {
+            // Verify the requesting user is an admin
+            const adminEmail = body.email;
+            if (!adminEmail || adminEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+                return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 403 });
+            }
             const { count } = await supabase.from('actividades').select('*', { count: 'exact', head: true });
             return NextResponse.json({
                 isAdmin: true,

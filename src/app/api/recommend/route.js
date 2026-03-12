@@ -16,7 +16,24 @@ export async function POST(request) {
 
         const supabase = createServiceClient();
 
-        // 1. Save the request to the database
+        // 1. Load activities from the database
+        const { data: activities, error: fetchError } = await supabase.from('actividades').select('*');
+
+        if (fetchError || !activities?.length) {
+            console.error('Error fetching activities:', fetchError);
+            return NextResponse.json({ success: false, error: 'No hay actividades disponibles en este momento.' });
+        }
+
+        // 2. Generate recommendations
+        const itinerary = generateRecommendations(activities, {
+            fechaInicio,
+            fechaFin,
+            intereses,
+            compania,
+            transporte
+        });
+
+        // 3. Save the request and generated itinerary to the database
         const { error: insertError } = await supabase.from('solicitudes').insert({
             nombre,
             apellido,
@@ -27,30 +44,14 @@ export async function POST(request) {
             compania: compania || [],
             transporte: transporte || [],
             intereses: intereses || [],
-            acepta_politica: aceptaPolitica
+            acepta_politica: aceptaPolitica,
+            itinerario: itinerary
         });
 
         if (insertError) {
             console.error('Error saving request:', insertError);
             // Continue even if saving fails - still send recommendation
         }
-
-        // 2. Load activities from the database
-        const { data: activities, error: fetchError } = await supabase.from('actividades').select('*');
-
-        if (fetchError || !activities?.length) {
-            console.error('Error fetching activities:', fetchError);
-            return NextResponse.json({ success: false, error: 'No hay actividades disponibles en este momento.' });
-        }
-
-        // 3. Generate recommendations
-        const itinerary = generateRecommendations(activities, {
-            fechaInicio,
-            fechaFin,
-            intereses,
-            compania,
-            transporte
-        });
 
         // 4. Generate email HTML
         const emailHtml = generateItineraryEmail({
