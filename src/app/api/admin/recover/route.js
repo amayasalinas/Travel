@@ -3,7 +3,7 @@ import { createServiceClient } from '@/lib/supabase';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
-const ALLOWED_ADMINS = ['amaya_salinas@hotmail.com', 'admin@assitour.com'];
+const ALLOWED_ADMINS = (process.env.ALLOWED_ADMINS || process.env.ADMIN_EMAIL || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
 
 export async function POST(request) {
     try {

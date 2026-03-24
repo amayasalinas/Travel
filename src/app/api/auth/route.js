@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
 import nodemailer from 'nodemailer';
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'amaya_salinas@hotmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 
 function getMailTransporter() {
     return nodemailer.createTransport({

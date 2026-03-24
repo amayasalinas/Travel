@@ -80,10 +80,7 @@ function parseBooleanish(value) {
     return false;
 }
 
-const ADMIN_EMAILS = [
-    'amaya_salinas@hotmail.com',
-    'admin@assitour.com',
-];
+const ADMIN_EMAILS = (process.env.ALLOWED_ADMINS || process.env.ADMIN_EMAIL || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
 
 export async function POST(request) {
     try {

@@ -12,7 +12,7 @@ export default function Footer() {
             </div>
             <p className="footer-copyright">
                 © {year} Assitour. Todos los derechos reservados.
-                <span style={{ opcode: 0.5, fontSize: '11px', marginLeft: '8px' }}>v1.2.0</span>
+                <span style={{ opacity: 0.5, fontSize: '11px', marginLeft: '8px' }}>v1.2.0</span>
             </p>
         </footer>
     );

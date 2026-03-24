@@ -3,8 +3,10 @@
  * Run: node scripts/setup-db.js
  */
 
-const SUPABASE_URL = 'https://iebbbbwrftvgsrkwpvox.supabase.co';
-const SERVICE_ROLE_KEY = 'sb_publishable_lxHUWAke6Rjrmrl964amaw_9oorlCUt';
+require('dotenv').config({ path: '.env.local' });
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const SQL = `
 -- Create actividades table

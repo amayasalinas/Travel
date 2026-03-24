@@ -13,15 +13,15 @@ export default function BottomNav() {
                 <span className="material-icons-round">home</span>
                 <span className="nav-label">Inicio</span>
             </Link>
-            <Link href="/explorar" className={`nav-item ${isActive('/explorar') ? 'active' : ''}`}>
+            <Link href="/planifica" className={`nav-item ${isActive('/planifica') ? 'active' : ''}`}>
                 <span className="material-icons-round">explore</span>
-                <span className="nav-label">Explorar</span>
+                <span className="nav-label">Planifica</span>
             </Link>
             <Link href="/mis-viajes" className={`nav-item ${isActive('/mis-viajes') ? 'active' : ''}`}>
                 <span className="material-icons-round">favorite</span>
-                <span className="nav-label">Favoritos</span>
+                <span className="nav-label">Mis Viajes</span>
             </Link>
-            <Link href="/login" className={`nav-item ${isActive('/perfil') ? 'active' : ''}`}>
+            <Link href="/login" className={`nav-item ${isActive('/login') ? 'active' : ''}`}>
                 <span className="material-icons-round">person</span>
                 <span className="nav-label">Perfil</span>
             </Link>
